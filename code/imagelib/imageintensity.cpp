@@ -1,6 +1,6 @@
 #include "image.hpp"
 
-void Image::calculateHistogram()
+void Image::updateHistogram()
 {
   uint32 imgSize = _width * _height * _channels;
   for (uint32 i = 0; i < 256; i++)
@@ -14,7 +14,7 @@ void Image::calculateHistogram()
   }
 }
 
-void Image::transformPixels()
+void Image::remapPixels()
 {
   uint32 imgSize = _height * _width * _channels;
   for (uint32 i = 0; i < imgSize; i++)
@@ -37,23 +37,23 @@ void Image::intensityNegate()
   {
     _lookupTable[i] = (L - 1) - i;
   }
-  transformPixels();
-  calculateHistogram();
+  remapPixels();
+  updateHistogram();
 }
 
-void Image::intensityPowerLaw(float a, float gamma)
+void Image::intensityPowerLaw(float gamma)
 {
   uint16 L = pow(2, _bps);
 
-  _lookupTable[0] = (a * pow(0.5f / 255.0f, gamma)) * 255;
+  _lookupTable[0] = pow(0.5 / 255.0, gamma) * 255;
 
   for (uint16 i = 1; i < L; i++)
   {
     float scaledPixel = (float)i / (float)(L - 1);
-    _lookupTable[i] = (a * pow(scaledPixel, gamma)) * 255;
+    _lookupTable[i] = pow(scaledPixel, gamma) * 255;
   }
-  transformPixels();
-  calculateHistogram();
+  remapPixels();
+  updateHistogram();
 }
 
 void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float *slopeChangeFractionPoints, float *desiredValueFractionsAtPoints, uint8 algorithm)
@@ -61,34 +61,33 @@ void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float *slopeCha
   uint16 L = pow(2, _bps);
   Interval *intervals = new Interval[numberOfSlopeChangePoints + 1];
 
-  if (numberOfSlopeChangePoints == 1)
+  switch (numberOfSlopeChangePoints)
   {
+  case 1:
     Eigen::Vector2f middle = Eigen::Vector2f{round(slopeChangeFractionPoints[0] * (float)L),
                                              round(desiredValueFractionsAtPoints[0] * (float)L)};
 
-    intervals[0] = Interval(middle, "right", L);
-    intervals[1] = Interval(middle, "left", L);
-  }
-  else if (numberOfSlopeChangePoints == 2)
-  {
+    intervals[0] = Interval(middle, "r", L);
+    intervals[1] = Interval(middle, "l", L);
+    break;
+  case 2:
     Eigen::Vector2f point1 = Eigen::Vector2f{round(slopeChangeFractionPoints[0] * (float)L),
                                              round(desiredValueFractionsAtPoints[0] * (float)L)};
     Eigen::Vector2f point2 = Eigen::Vector2f{round(slopeChangeFractionPoints[1] * (float)L),
                                              round(desiredValueFractionsAtPoints[1] * (float)L)};
 
-    intervals[0] = Interval(point1, "right", L);
+    intervals[0] = Interval(point1, "r", L);
     intervals[1] = Interval(point1, point2);
-    intervals[2] = Interval(point2, "left", L);
-  }
-  else if (numberOfSlopeChangePoints > 2)
-  {
+    intervals[2] = Interval(point2, "l", L);
+    break;
+  default:
     Eigen::Vector2f point1 = Eigen::Vector2f{round(slopeChangeFractionPoints[0] * (float)L),
                                              round(desiredValueFractionsAtPoints[0] * (float)L)};
     Eigen::Vector2f point2 = Eigen::Vector2f{round(slopeChangeFractionPoints[numberOfSlopeChangePoints - 1] * (float)L),
                                              round(desiredValueFractionsAtPoints[numberOfSlopeChangePoints - 1] * (float)L)};
 
-    intervals[0] = Interval(point1, "right", L);
-    intervals[numberOfSlopeChangePoints] = Interval(point2, "left", L);
+    intervals[0] = Interval(point1, "r", L);
+    intervals[numberOfSlopeChangePoints] = Interval(point2, "l", L);
 
     for (uint16 i = 1; i < numberOfSlopeChangePoints; i++)
     {
@@ -99,10 +98,7 @@ void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float *slopeCha
 
       intervals[i] = Interval(left, right);
     }
-  }
-  else
-  {
-    std::cout << "Invalid number of slope points" << std::endl;
+    break;
   }
 
   uint16 point = 0;
@@ -134,11 +130,11 @@ void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float *slopeCha
     }
   }
 
-  transformPixels();
-  calculateHistogram();
+  remapPixels();
+  updateHistogram();
 }
 
-void Image::histogramNormalization()
+void Image::normalizeHistogram()
 {
   uint16 L = pow(2, _bps);
   float imgSize = (float)(_height * _width * _channels);
@@ -152,6 +148,6 @@ void Image::histogramNormalization()
     _lookupTable[i] = (L - 1) * sumPr;
   }
 
-  transformPixels();
-  calculateHistogram();
+  remapPixels();
+  updateHistogram();
 }

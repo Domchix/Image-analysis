@@ -1,16 +1,13 @@
 #include "image.hpp"
 
 Interval::Interval(Eigen::Vector2f singleVec, std::string side, uint16 L){
-  if (side == "left"){
+  if (side == "l"){
     _left = singleVec;
     _right = Eigen::Vector2f{(float)(L - 1), (float)(L - 1)};
   }
-  else if (side == "right"){
+  else if (side == "r"){
     _right = singleVec;
     _left = Eigen::Vector2f{0, 0};
-  }
-  else {
-    std::cout << "Side selection must be \"left\" or \"right\"" << std::endl;
   }
 }
 

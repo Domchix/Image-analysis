@@ -12,19 +12,22 @@
 
 #include <image.hpp>
 
-class QtImageViewer : public QMainWindow{
+class QtImageViewer : public QMainWindow
+{
 
   Q_OBJECT
 
 public:
-  QtImageViewer(QWidget *parent=nullptr);
-  QtImageViewer(const QString filename, QWidget *parent=nullptr);
+  QtImageViewer(QWidget *parent = nullptr);
+  QtImageViewer(const QString filename, QWidget *parent = nullptr);
 
   virtual ~QtImageViewer();
-			  
+
 public slots:
   void showFile(const QString filename);
   void showImage(Image *img);
+  void showImage(Image *img, std::string transformationType, float *values = nullptr, int nrOfValues = 0);
+  void showImage(Image *img, char left, char right);
   void showImageLeft(Image *img);
   void showImageRight(Image *img);
   void openFile();
@@ -42,9 +45,9 @@ private:
   QImage _rImage;
   QLabel *_rImageLabel{nullptr};
   QScrollArea *_rScrollArea{nullptr};
-  
+
   QMenu *_fileMenu{nullptr};
-  
+
   QAction *_fileOpenAction{nullptr};
   QAction *_quitAction{nullptr};
 

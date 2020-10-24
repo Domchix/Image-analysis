@@ -30,7 +30,7 @@ MOVE          = mv -f
 TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = imageviewer1.0.0
-DISTDIR = /home/domchix/Uni/Week1/code/viewerWeek3/.tmp/imageviewer1.0.0
+DISTDIR = /home/domchix/Uni/Week1/code/viewer2/.tmp/imageviewer1.0.0
 SUBTARGETS    =  \
 		release \
 		debug

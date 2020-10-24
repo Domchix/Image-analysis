@@ -1,164 +1,325 @@
 #include "qtimageviewer.hpp"
 
-#include <image.hpp>
-#include <Eigen/Geometry>
+#include <QFileDialog>
+#include <QMainWindow>
+#include <QPalette>
+#include <QMenu>
+#include <QMenuBar>
+#include <QImageReader>
+#include <QBarSet>
+#include <QBarSeries>
+#include <QBarCategoryAxis>
+#include <QValueAxis>
 
 #include <iostream>
-#include <string>
-#include <cstdlib>
-#include <QApplication>
-#include <Eigen/Core>
-#include <math.h>
 
+QtImageViewer::QtImageViewer(QWidget *parent) :
+  QMainWindow(parent){
+  init();
+};
 
-int main(int argc, char** argv){
-  QApplication app( argc, argv );
-  QtImageViewer* imv = new QtImageViewer();
+void  QtImageViewer::init(){
 
-  if(argc >= 2){
-    if (argc == 2){
-      QString filename(argv[1]);
-      std::cout<<"Load directly: "<<filename.toStdString()<<std::endl;
-      imv->showFile(filename);
-    }
-    else if (std::string(argv[1]) == "negate"){
-      if (argc == 3){
-        QString filename(argv[2]);
-        Image* myImage = new Image(filename.toStdString());
-        std::cout<<"Loading and negating: "<<filename.toStdString()<<std::endl;
-        imv->showImage(myImage, std::string(argv[1]));
-      }
-      else{
-        std::cout << "Invalid number of arguments for operation 'negate'" << std::endl;
-        std::exit(0);
-      }
-    }
-    else if (std::string(argv[1]) == "powerlaw"){
-      if (argc == 4){
-        QString filename(argv[3]);
-        Image* myImage = new Image(filename.toStdString());
-        std::cout<<"Loading and applying power law: "<<filename.toStdString()<<std::endl;
-        float* values = new float[1]{atof(argv[2])};
-        imv->showImage(myImage, std::string(argv[1]), values);
-      }
-      else{
-        std::cout << "Invalid number of arguments for operation 'powerlaw'" << std::endl;
-        std::exit(0);
-      }
-    }
-    else if (std::string(argv[1]) == "contrastlinear" || std::string(argv[1]) == "contrastthreshold"
-     || std::string(argv[1]) == "contrastslice"){
-
-      if ((argc-3) % 2 != 0){
-        std::cout << "number of fraction values must be even (x and y pairs)";
-        std::exit(0);
-      }
-      QString filename(argv[argc-1]);
-      Image* myImage = new Image(filename.toStdString());
-      std::cout<<"Loading and streaching contrast: "<<filename.toStdString()<<std::endl;
-      
-      float* values = new float[argc - 3];
-      int nrOfValues = 0;
-      for (unsigned short i = 2; i < argc-1; i++){
-        if (atof(argv[i]) > 1 || atof(argv[i]) < 0){
-          std::cout << "values must be fractions between 0 and 1 inclusively" << std::endl;
-          std::exit(0);
-        }
-        values[i-2] = atof(argv[i]);
-        nrOfValues++;
-      }
-      imv->showImage(myImage, std::string(argv[1]), values, nrOfValues);
-    }
-    else if (std::string(argv[1]) == "normalize"){
-      if (argc == 3){
-        QString filename(argv[2]);
-        Image* myImage = new Image(filename.toStdString());
-        std::cout<<"Loading and normalizing histogram: "<<filename.toStdString()<<std::endl;
-        imv->showImage(myImage, std::string(argv[1]));
-      }
-      else{
-        std::cout << "Invalid number of arguments for operation 'normalize'" << std::endl;
-        std::exit(0);
-      }
-    }
-    else if (std::string(argv[1]) == "blur"){
-      if (argc == 4){
-        QString filename(argv[3]);
-        Image* myImage = new Image(filename.toStdString());
-        std::cout<<"Loading and blurring: "<<filename.toStdString()<<std::endl;
-        float* values = new float[1]{atoi(argv[2])};
-        imv->showImage(myImage, std::string(argv[1]), values);
-      }
-      else{
-        std::cout << "Invalid number of arguments for operation 'blur'" << std::endl;
-        std::exit(0);
-      }
-    }
-    else if (std::string(argv[1]) == "unsharpmask"){
-      if (argc == 4){
-        QString filename(argv[3]);
-        Image* myImage = new Image(filename.toStdString());
-        std::cout<<"Loading and sharpening with unsharp mask: "<<filename.toStdString()<<std::endl;
-        float* values = new float[1]{atoi(argv[2])};
-        imv->showImage(myImage, std::string(argv[1]), values);
-      }
-      else{
-        std::cout << "Invalid number of arguments for operation 'uncharpmask'" << std::endl;
-        std::exit(0);
-      }
-    }
-    else if (std::string(argv[1]) == "laplacian"){
-      if (argc == 4){
-        QString filename(argv[3]);
-        Image* myImage = new Image(filename.toStdString());
-        std::cout<<"Loading and sharpening with laplacian: "<<filename.toStdString()<<std::endl;
-        float* values = new float[1];
-        if (std::string(argv[2]) == "n4") values[0] = 0;
-        else if (std::string(argv[2]) == "n8") values[0] = 1;
-        else{
-          std::cout << "third argument must be 'n4' or 'n8' for neighbourhood scheme" << std::endl;
-          std::exit(0);
-        }
-        imv->showImage(myImage, std::string(argv[1]), values);
-      }
-      else{
-        std::cout << "Invalid number of arguments for operation 'laplacian'" << std::endl;
-        std::exit(0);
-      }
-    }
-    else if (std::string(argv[1]) == "sobel"){
-      if (argc == 3){
-        QString filename(argv[2]);
-        Image* myImage = new Image(filename.toStdString());
-        std::cout<<"Loading and visualizing sobel gradient magnitude: "<<filename.toStdString()<<std::endl;
-        imv->showImage(myImage, std::string(argv[1]));
-      }
-      else{
-        std::cout << "Invalid number of arguments for operation sobel'" << std::endl;
-        std::exit(0);
-      }
-    }
-    else if (std::string(argv[1]) == "fig3-43"){
-      if (argc == 5){
-        QString filename(argv[4]);
-        Image* myImage = new Image(filename.toStdString());
-        std::cout<<"Loading and visualizing figure 3-43: "<<filename.toStdString()<<std::endl;
-        imv->showImage(myImage, argv[2][0], argv[3][0]);
-      }
-      else{
-        std::cout << "Invalid number of arguments for operation 'fig3-43'" << std::endl;
-        std::exit(0);
-      }
-    }
-  }
-  imv->show();
-  imv->resize(1000,600);
-
-  int ret = app.exec();
+  _lImageLabel = new QLabel;
+  _lImageLabel->setBackgroundRole(QPalette::Base);
+  _lImageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+  _lImageLabel->setScaledContents(false);
   
-  delete(imv);
-  //delete(tImg);
+  _lScrollArea = new QScrollArea;
+  _lScrollArea->setBackgroundRole(QPalette::Dark);
+  _lScrollArea->setWidget(_lImageLabel);
+  _lScrollArea->setVisible(true);
 
-  return ret;
+  _rImageLabel = new QLabel;
+  _rImageLabel->setBackgroundRole(QPalette::Base);
+  _rImageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+  _rImageLabel->setScaledContents(false);
   
+  _rScrollArea = new QScrollArea;
+  _rScrollArea->setBackgroundRole(QPalette::Dark);
+  _rScrollArea->setWidget(_rImageLabel);
+  _rScrollArea->setVisible(true);
+  
+
+  _mainSplitter = new QSplitter();
+  _leftSplitter = new QSplitter(Qt::Vertical);
+  _rightSplitter = new QSplitter(Qt::Vertical);
+
+  _mainSplitter->addWidget(_leftSplitter);
+  _mainSplitter->addWidget(_rightSplitter);
+
+  _leftSplitter->addWidget(_lScrollArea);
+  _rightSplitter->addWidget(_rScrollArea);
+
+  setCentralWidget(_mainSplitter);
+  createActions();
 }
+
+QtImageViewer::~QtImageViewer(){
+  delete(_lImageLabel);
+  delete(_lScrollArea);
+  delete(_rImageLabel);
+  delete(_rScrollArea);
+  delete(_fileMenu);
+  delete(_fileOpenAction);
+  delete(_quitAction);
+};
+
+void QtImageViewer::createActions(){
+
+  _fileOpenAction = new QAction(tr("&Open..."), this);
+  _fileOpenAction->setShortcut(QKeySequence::Open);
+  connect(_fileOpenAction, SIGNAL(triggered()), this, SLOT(openFile()));
+
+  _quitAction = new QAction(tr("&Quit..."), this);
+  _quitAction->setShortcut(QKeySequence::Quit);
+  connect(_quitAction, SIGNAL(triggered()), this, SLOT(quit()));
+
+  _fileMenu = menuBar()->addMenu(tr("&File"));
+  _fileMenu->addAction(_fileOpenAction);
+  _fileMenu->addAction(_quitAction);
+}
+
+void QtImageViewer::openFile(){
+  QFileDialog dialog(this, tr("Open File"));
+  QString filename = dialog.getOpenFileName(this, "Select image to open");
+  std::cout<<"Opening: "<<filename.toStdString()<<std::endl;
+  showFile(filename);
+}
+
+void QtImageViewer::showFile(const QString filename){  
+
+  Image* myImage = new Image(filename.toStdString());
+  showImage(myImage);
+
+  update(); // For Qt to redraw with new image
+  delete(myImage);
+}
+
+void QtImageViewer::showImage(Image *img){
+  std::cout<<"Transform and show Image! "<<std::endl;
+  //create a copy
+  
+  // img->Fig3_43('f');
+  showImageLeft(img);
+  Image *copy = new Image(*(img));
+  // transform copy
+  // copy->intensityNegate();
+  // copy->intensityPowerLaw(1, 0.3);
+
+  // uint16 n = 2;
+  // float xpoints[n] = {0.375f, 0.625f};
+  // float ypoints[n] = {0.125f, 0.875f};
+
+  // uint16 n = 2;
+  // float xpoints[n] = {0.9f, 1.0f};
+  // float ypoints[n] = {0.3f, 0.0f};
+
+  // copy->contrastStretching(n, xpoints, ypoints, 2);
+
+  // copy->histogramNormalization();
+
+  // copy->imageBlurring(5);
+
+  // copy->sharpeningUnsharpMask(5, 1);
+
+  // copy->sharpeningLaplacian(true);
+
+  // copy->sobelOperator();
+
+  //copy->Fig3_43('g');
+
+  // show copy
+  showImageRight(copy); 
+  delete(copy); // copy not needed anymore
+}
+
+void QtImageViewer::showImage(Image *img, std::string transformationType, float* values, int nrOfValues){
+  std::cout<<"Transform and show Image! "<<std::endl;
+  showImageLeft(img);
+  Image *copy = new Image(*(img));
+  if (transformationType == "negate"){
+    copy->intensityNegate();
+  }
+  else if (transformationType == "powerlaw"){
+    copy->intensityPowerLaw(values[0]);
+  }
+  else if (transformationType == "contrastlinear" || transformationType == "contrastthreshold"
+   || transformationType == "contrastslice"){
+    float* xpoints = new float[nrOfValues / 2];
+    float* ypoints = new float[nrOfValues / 2];
+    int j = 0;
+    for (int i = 0; i < nrOfValues; i++){
+      if (i % 2 == 0) xpoints[j] = values[i];
+      else{
+        ypoints[j] = values[i];
+        j++;
+      } 
+    }
+    if (transformationType == "contrastlinear") copy->contrastStretching(nrOfValues / 2, xpoints, ypoints, 0);
+    else if (transformationType == "contrastthreshold") copy->contrastStretching(nrOfValues / 2, xpoints, ypoints, 1);
+    else copy->contrastStretching(nrOfValues / 2, xpoints, ypoints, 2);
+  }
+  else if (transformationType == "normalize"){
+    copy->normalizeHistogram();
+  }
+  else if (transformationType == "blur"){
+    copy->imageBlurring((int)values[0]);
+  }
+  else if (transformationType == "unsharpmask"){
+    copy->sharpeningUnsharpMask((int)values[0], 1);
+  }
+  else if (transformationType == "laplacian"){
+    if (values[0] == 0) copy->sharpeningLaplacian(false);
+    else copy->sharpeningLaplacian(true);
+  }
+  else if (transformationType == "sobel"){
+    copy->sobelOperator();
+  }
+
+  showImageRight(copy);
+  delete(copy);
+
+  update(); // For Qt to redraw with new image
+  delete(img);
+}
+
+void QtImageViewer::showImage(Image *img, char left, char right){
+  std::cout<<"Transform and show Image! "<<std::endl;
+  //create a copy
+  Image *copy = new Image(*(img));
+  img->Fig3_43(left);
+  showImageLeft(img);
+
+  copy->Fig3_43(right);
+  showImageRight(copy);
+  delete(copy); // copy not needed anymore
+}
+
+void QtImageViewer::showImageLeft(Image *img) {
+
+  QImage::Format format = QImage::Format_Invalid;
+
+  if(img->getSamplesPerPixel() == 3){
+    format = QImage::Format_RGB888;
+    std::cout<<"Sorry, only dealing with grayscale images for now"<<std::endl;
+    close();
+  }
+  else if (img->getSamplesPerPixel() == 1)
+    format = QImage::Format_Grayscale8;
+
+  std::vector<unsigned int> hist = img->getHistogram();
+
+  QtCharts::QBarSet *bset = new QtCharts::QBarSet("Intensities");
+  unsigned int maxInt{0};
+  for(unsigned int i : hist) { (*bset) << i; maxInt = std::max(maxInt,i);  }
+  
+  QtCharts::QBarSeries *bseries = new QtCharts::QBarSeries();
+  bseries->append(bset);
+
+  QtCharts::QChart *chart = new QtCharts::QChart();
+  chart->addSeries(bseries);
+  chart->setTitle("Intensity Histogram");
+  chart->setAnimationOptions(QtCharts::QChart::NoAnimation);
+  
+
+  QtCharts::QValueAxis *xAxis = new  QtCharts::QValueAxis();
+  xAxis->setRange(0,255);
+  
+  QtCharts::QValueAxis *yAxis = new QtCharts::QValueAxis();
+  yAxis->setRange(0,maxInt);
+
+  // Seems you must add axis to chart first, then to bseries
+  chart->addAxis(xAxis, Qt::AlignBottom);
+  chart->addAxis(yAxis, Qt::AlignLeft);
+
+  bseries->attachAxis(xAxis);
+  bseries->attachAxis(yAxis);
+  bset->setBorderColor(QColor("black"));
+
+  chart->legend()->setVisible(true);
+  chart->legend()->setAlignment(Qt::AlignBottom);
+  
+  _lChartView = new QtCharts::QChartView(chart);
+  _lChartView->setRenderHint(QPainter::Antialiasing);
+  _leftSplitter->addWidget(_lChartView);
+
+  // Copy image data to Qt
+  QImage qImg(img->getImageData(),
+	      img->getWidth(),
+	      img->getHeight(),
+	      img->getWidth()*img->getSamplesPerPixel()*img->getBitsPerSample()/8,
+	      format);
+  
+  // Tell Qt to show this image data
+  _lImageLabel->setPixmap(QPixmap::fromImage(qImg));
+  _lImageLabel->resize(_lImageLabel->pixmap()->size());
+  _lScrollArea->setVisible(true);
+  
+  update(); // For Qt to redraw with new image
+}
+
+void QtImageViewer::showImageRight(Image *img) {
+
+  QImage::Format format = QImage::Format_Invalid;
+
+  if(img->getSamplesPerPixel() == 3){
+    format = QImage::Format_RGB888;
+    std::cout<<"Sorry, only dealing with grayscale images for now"<<std::endl;
+    close();
+  }
+  else if (img->getSamplesPerPixel() == 1)
+    format = QImage::Format_Grayscale8;
+
+  std::vector<unsigned int> hist = img->getHistogram();
+
+  QtCharts::QBarSet *bset = new QtCharts::QBarSet("Intensities");
+  unsigned int maxInt{0};
+  for(unsigned int i : hist) { (*bset) << i; maxInt = std::max(maxInt,i);  }
+  
+  QtCharts::QBarSeries *bseries = new QtCharts::QBarSeries();
+  bseries->append(bset);
+
+  QtCharts::QChart *chart = new QtCharts::QChart();
+  chart->addSeries(bseries);
+  chart->setTitle("Intensity Histogram");
+  chart->setAnimationOptions(QtCharts::QChart::NoAnimation);
+  
+  QtCharts::QValueAxis *xAxis = new  QtCharts::QValueAxis();
+  xAxis->setRange(0,255);
+  
+  QtCharts::QValueAxis *yAxis = new QtCharts::QValueAxis();
+  yAxis->setRange(0,maxInt);
+
+  // Seems you must add axis to chart first, then to bseries
+  chart->addAxis(xAxis, Qt::AlignBottom);
+  chart->addAxis(yAxis, Qt::AlignLeft);
+
+  bseries->attachAxis(xAxis);
+  bseries->attachAxis(yAxis);
+  bset->setBorderColor(QColor("black"));
+
+  chart->legend()->setVisible(true);
+  chart->legend()->setAlignment(Qt::AlignBottom);
+  
+  _rChartView = new QtCharts::QChartView(chart);
+  _rChartView->setRenderHint(QPainter::Antialiasing);
+  _rightSplitter->addWidget(_rChartView);
+
+  // Copy image data to Qt
+  QImage qImg(img->getImageData(),
+	      img->getWidth(),
+	      img->getHeight(),
+	      img->getWidth()*img->getSamplesPerPixel()*img->getBitsPerSample()/8,
+	      format);
+  
+  // Tell Qt to show this image data
+  _rImageLabel->setPixmap(QPixmap::fromImage(qImg));
+  _rImageLabel->resize(_rImageLabel->pixmap()->size());
+  _rScrollArea->setVisible(true);
+  update(); // For Qt to redraw with new image
+}
+
+void QtImageViewer::quit(){
+  close();
+};

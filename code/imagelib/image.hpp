@@ -32,10 +32,10 @@ public:
 
 	// Intensity transformations
 	void intensityNegate();
-	void intensityPowerLaw(float a, float gamma);
+	void intensityPowerLaw(float gamma);
 	void contrastStretching(uint16 numberOfSlopeChangePoints, float *slopeChangeFractionPoints,
-							float *desiredValueFractionsAtPoints, uint8 algorithm = 0);
-	void histogramNormalization();
+							float *desiredValueFractionsAtPoints, uint8 algorithm);
+	void normalizeHistogram();
 	// Spacial filtering
 	void imageBlurring(uint32 filterWidth);
 	void sharpeningUnsharpMask(uint16 blurringFilterWidth, uint8 k = 1);
@@ -90,8 +90,8 @@ private:
 	unsigned char getIntensity(Eigen::Vector3i &idx);
 	void setIntensity(Eigen::Vector3i &idx, unsigned char intensity);
 	// Intensity stuff
-	void transformPixels();
-	void calculateHistogram();
+	void remapPixels();
+	void updateHistogram();
 	// Spacial filtering stuff
 };
 

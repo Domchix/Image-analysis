@@ -9,7 +9,7 @@ Image::Image(std::string filename)
   openFile(filename);
   _region.max_x = (float)(_width - 1);
   _region.max_y = (float)(_height - 1);
-  calculateHistogram();
+  updateHistogram();
 }
 
 Image::Image(const Image &image)
@@ -26,7 +26,7 @@ Image::Image(const Image &image)
   {
     _data[i] = image._data[i];
   }
-  calculateHistogram();
+  updateHistogram();
 }
 
 Image::Image(BBox box)
@@ -34,7 +34,7 @@ Image::Image(BBox box)
   _region = box;
   _data = new unsigned char[_width * _height];
   _channels = 1;
-  calculateHistogram();
+  updateHistogram();
 }
 
 // Constructor for transformation only 1channel/8bps allowed
@@ -46,7 +46,7 @@ Image::Image(unsigned int width, unsigned int height, float pixelUnit)
   _bps = 8;
   _channels = 1;
   _data = new unsigned char[_width * _height];
-  calculateHistogram();
+  updateHistogram();
 }
 
 Image::~Image()
