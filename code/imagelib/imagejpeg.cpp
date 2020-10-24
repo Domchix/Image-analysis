@@ -6,14 +6,6 @@
 #include <jpeglib.h> // Note use of jpeg library
 // See https://libjpeg-turbo.org/Documentation/Documentation
 
-// struct imgRawImage
-// {
-//   unsigned int numComponents;
-//   unsigned long int width, height;
-
-//   unsigned char *lpData;
-// };
-
 bool Image::loadJpegImageFile(char *lpFilename)
 {
   struct jpeg_decompress_struct info;
@@ -31,10 +23,7 @@ bool Image::loadJpegImageFile(char *lpFilename)
   fHandle = fopen(lpFilename, "rb");
   if (fHandle == NULL)
   {
-#ifdef DEBUG
-    fprintf(stderr, "%s:%u: Failed to read file %s\n", __FILE__, __LINE__, lpFilename);
-#endif
-    return NULL; /* ToDo */
+    return NULL;
   }
 
   info.err = jpeg_std_error(&err);
@@ -51,20 +40,11 @@ bool Image::loadJpegImageFile(char *lpFilename)
 
   std::cout << "Width: " << _width << "Height: " << _height << " Channels:" << _channels << std::endl;
 
-  dwBufferBytes = _width * _height * _channels; /* We only read RGB, not A */
+  dwBufferBytes = _width * _height * _channels;
   std::cout << "Size: " << dwBufferBytes << std::endl;
   lpData = (unsigned char *)malloc(sizeof(unsigned char) * dwBufferBytes);
 
-  // Alloc image
-  //_data = (unsigned char *)_TIFFmalloc(_width * _height * _channels);
   _data = new unsigned char[dwBufferBytes];
-  // lpNewImage = (struct imgRawImage *)malloc(sizeof(struct imgRawImage));
-  // lpNewImage->numComponents = _channels;
-  // lpNewImage->width = _width;
-  // lpNewImage->height = _height;
-  // lpNewImage->lpData = lpData;
-
-  /* Read scanline by scanline */
 
   while (info.output_scanline < info.output_height)
   {
@@ -72,11 +52,6 @@ bool Image::loadJpegImageFile(char *lpFilename)
     unsigned long offset = info.output_scanline * lineSize;
     lpRowBuffer[0] = (unsigned char *)(&lpData[lineSize * info.output_scanline]);
     jpeg_read_scanlines(&info, lpRowBuffer, 1);
-
-    // if (offset == 0)
-    // {
-    //   std::cout << "buffer: " << lpRowBuffer[0] << std::endl;
-    // }
 
     for (unsigned long x = 0; x < lineSize; x++)
     {
@@ -100,16 +75,4 @@ bool Image::loadJpeg(std::string filename)
   c_filename[filename.size()] = '\0'; // don't forget the terminating 0
 
   return loadJpegImageFile(c_filename);
-
-  //TIFF *tiff = (filename.c_str(), "r");
-  // Read image meta data, height, width etc.
-
-  // this->readTiffMetaData(tiff);
-
-  // if (TIFFIsTiled(tiff))
-  //   return loadTiffTiled(tiff);
-  // else
-  //   return loadTiffScanline(tiff);
-
-  //return false;
 };

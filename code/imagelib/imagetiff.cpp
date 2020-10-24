@@ -9,11 +9,12 @@
 
 bool Image::readTiffMetaData(TIFF *tiff)
 {
+  std::cout<<"Test";
   TIFFSetDirectory(tiff, 0); // NB!
   // Read using TIFFGetField
   TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &_width);
   TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &_height);
-  TIFFGetField(tiff, TIFFTAG_BITSPERSAMPLE, &_bpp);
+  TIFFGetField(tiff, TIFFTAG_BITSPERSAMPLE, &_bps);
   TIFFGetField(tiff, TIFFTAG_IMAGEDEPTH, &_depth);
   TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &_channels);
   return true;
@@ -68,68 +69,6 @@ bool Image::loadTiffTiled(TIFF *tiff)
   return true;
 }
 
-bool Image::loadTiffStrip(TIFF *tiff)
-{
-  std::cout << "Tiff is striped" << std::endl;
-
-  // tdata_t buf;
-  // tstrip_t strip;
-  // uint32* bc;
-  // uint32 stripsize;
-
-  // TIFFGetField(tiff, TIFFTAG_STRIPBYTECOUNTS, &bc);
-  // stripsize = bc[0];
-  // buf = _TIFFmalloc(stripsize);
-  // for (strip = 0; strip < TIFFNumberOfStrips(tiff); strip++) {
-  //     if (bc[strip] > stripsize) {
-  //         buf = _TIFFrealloc(buf, bc[strip]);
-  //         stripsize = bc[strip];
-  //     }
-  //     TIFFReadRawStrip(tiff, strip, buf, bc[strip]);
-  //     std::copy(buf, *buf[stripsize-1],_data[1])
-  // }
-  // _TIFFfree(buf);
-
-  // return true;
-
-  // Get tile info
-  unsigned long stripSize = TIFFStripSize(tiff);
-  unsigned long stripCount = TIFFNumberOfStrips(tiff);
-  std::cout << "Strip size: " << stripSize << std::endl;
-  //std::cout<< "Strip size: "<<TIFFGetField(tiff, TIFFTAG_)
-  std::cout << "Strip count: " << stripCount << std::endl;
-
-  // Aloc image
-  _data = (unsigned char *)_TIFFmalloc(_width * _height * _channels);
-
-  // Aloc buffer
-  unsigned char *buf = (unsigned char *)_TIFFmalloc(stripSize);
-
-  for (tstrip_t strip = 0; strip < stripCount; strip++)
-  {
-    std::cout << "Stripe:" << strip << std::endl;
-    TIFFReadEncodedStrip(tiff, strip, buf, stripSize);
-    for (size_t x = 0; x < stripSize; x++)
-    {
-      _data[strip * x] = buf[x];
-      //std::copy(buf, buf[stripSize-1], _data);
-      // if ()
-      // {
-      //   unsigned long dest = x * strip * _channels;
-      //   unsigned long source = x * _channels;
-      //   _data[dest] = buf[source];
-      //   _data[dest + 1] = buf[source + 1];
-      //   _data[dest + 2] = buf[source + 2];
-      // }
-    }
-  }
-
-  _TIFFfree(buf);
-
-  std::cout << "Finished reading" << std::endl;
-  return true;
-}
-
 bool Image::loadTiffScanline(TIFF *tiff)
 {
   std::cout << "Tiff is striped" << std::endl;
@@ -164,13 +103,11 @@ bool Image::loadTiff(std::string filename)
   // Read image meta data, height, width etc.
 
   this->readTiffMetaData(tiff);
-
+  
   if (TIFFIsTiled(tiff))
     return loadTiffTiled(tiff);
   else
     return loadTiffScanline(tiff);
-  //return loadTiffStrip(tiff);
-  // or    _data = loadTiffScanline(tiff);
   return true;
 };
 
@@ -184,7 +121,7 @@ bool Image::saveTiff()
   TIFFSetField(tiff, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
   TIFFSetField(tiff, TIFFTAG_SAMPLESPERPIXEL, _channels);
   TIFFSetField(tiff, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-  TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, _bpp);
+  TIFFSetField(tiff, TIFFTAG_BITSPERSAMPLE, _bps);
   TIFFSetField(tiff, TIFFTAG_IMAGEDEPTH, _depth);
 
   //uint32 rowsPerStrip = image->getHeight();
@@ -254,7 +191,7 @@ Image::Image(std::string filename1, std::string filename2, std::string filename3
   // Transfer metadata
   _width = image1->_width;
   _height = image1->_height;
-  _bpp = image1->_bpp;
+  _bps = image1->_bps;
   _depth = image1->_depth;
   _channels = 3;
   _data = new unsigned char[size * 3];

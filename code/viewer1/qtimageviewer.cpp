@@ -5,6 +5,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
+#include <QInputDialog>
 
 #include <iostream>
 
@@ -17,6 +18,8 @@ QtImageViewer::QtImageViewer(QWidget *parent) : QMainWindow(parent)
 
 void QtImageViewer::init()
 {
+  _useBiLinear = false;
+
   _qImageLabel = new QLabel;
 
   _qImageLabel->setBackgroundRole(QPalette::Base);
@@ -49,11 +52,26 @@ void QtImageViewer::createActions()
 
   _quitAction = new QAction(tr("&Quit..."), this);
   _quitAction->setShortcut(QKeySequence::Quit);
-  connect(_quitAction, SIGNAL(triggetu gred()), this, SLOT(quit()));
+  connect(_quitAction, SIGNAL(triggered()), this, SLOT(quit()));
 
   _fileMenu = menuBar()->addMenu(tr("&File"));
   _fileMenu->addAction(_fileOpenAction);
   _fileMenu->addAction(_quitAction);
+
+  _scaleAction = new QAction(tr("&Scale"), this);
+  connect(_scaleAction, SIGNAL(triggered()), this, SLOT(scaleImage()));
+  _nonuniformScaleAction = new QAction(tr("&Nonuniform Scale"), this);
+  connect(_nonuniformScaleAction, SIGNAL(triggered()), this, SLOT(nonuniformScaleImage()));
+  _rotateAction = new QAction(tr("&Rotate"), this);
+  connect(_rotateAction, SIGNAL(triggered()), this, SLOT(rotateImage()));
+  _interpolationAction = new QAction(tr("&Set Interpolation"), this);
+  connect(_interpolationAction, SIGNAL(triggered()), this, SLOT(setInterpolation()));
+
+  _editMenu = menuBar()->addMenu(tr("&Edit"));
+  _editMenu->addAction(_scaleAction);
+  _editMenu->addAction(_nonuniformScaleAction);
+  _editMenu->addAction(_rotateAction);
+  _editMenu->addAction(_interpolationAction);
 }
 
 void QtImageViewer::quit()
@@ -77,11 +95,13 @@ void QtImageViewer::showFile(const QString filename)
 
 void QtImageViewer::showImage()
 {
+  std::cout << "---" << std::endl;
   std::cout << "Width: " << _currentImage->getWidth() << std::endl;
   std::cout << "Height: " << _currentImage->getHeight() << std::endl;
   std::cout << "Channels: " << _currentImage->getChannels() << std::endl;
-  std::cout << "BPP: " << _currentImage->getBPP() << std::endl;
+  std::cout << "BPS: " << _currentImage->getBitsPerSample() << std::endl;
   std::cout << "Depth: " << _currentImage->getDepth() << std::endl;
+  std::cout << "---" << std::endl;
 
   QImage::Format format = QImage::Format_Invalid;
   // We deal only with 8 bits per channel for now.
@@ -91,14 +111,10 @@ void QtImageViewer::showImage()
   else if (_currentImage->getChannels() == 1)
     format = QImage::Format_Grayscale8;
 
-  // QImage qImg(_currentImage->getImageData(),
-  //             _currentImage->getWidth(),
-  //             _currentImage->getHeight(),
-  //             format);
   QImage qImg(_currentImage->getImageData(),
               _currentImage->getWidth(),
               _currentImage->getHeight(),
-              _currentImage->getWidth() * _currentImage->getChannels() * _currentImage->getBPP() / 8,
+              _currentImage->getWidth() * _currentImage->getChannels() * _currentImage->getBitsPerSample() / 8,
               format);
 
   _qImageLabel->setPixmap(QPixmap::fromImage(qImg));
@@ -106,14 +122,62 @@ void QtImageViewer::showImage()
   _qScrollArea->setVisible(true);
 
   update(); /// Force Qt to redraw
-  //delete (myImage); /// Data is copied to Qt, we can delete our image.
 }
 
-void QtImageViewer::transformFile(const QString filename)
+void QtImageViewer::scaleImage()
 {
-  //_currentImage = new Image(filename.toStdString());
-  _currentImage = _currentImage->transformImage();
+  bool result;
+  double scale = QInputDialog::getDouble(this, tr("Scale image"), tr("Scale"), 0, -10000, 10000, 2, &result);
+
+  if (!result)
+  {
+    return;
+  }
+
+  _currentImage = _currentImage->ScaleImage(scale, _useBiLinear);
   showImage();
+}
+
+void QtImageViewer::nonuniformScaleImage()
+{
+  bool result;
+  double scaleX = QInputDialog::getDouble(this, tr("Nonuniform scale image"), tr("Scale x"), 0, -10000, 10000, 2, &result);
+  double scaleY = QInputDialog::getDouble(this, tr("Nonuniform scale image"), tr("Scale y"), 0, -10000, 10000, 2, &result);
+
+  if (!result)
+  {
+    return;
+  }
+
+  _currentImage = _currentImage->NonuniformScaleImage(scaleX, scaleY, _useBiLinear);
+  showImage();
+}
+
+void QtImageViewer::rotateImage()
+{
+  bool result;
+  double degrees = QInputDialog::getDouble(this, tr("Rotate image"), tr("Rotate degrees"), 0, -10000, 10000, 2, &result);
+
+  if (!result)
+  {
+    return;
+  }
+
+  _currentImage = _currentImage->RotateImage(degrees, _useBiLinear);
+  showImage();
+}
+
+void QtImageViewer::setInterpolation()
+{
+  bool result;
+  int interpolation = QInputDialog::getInt(this, tr("Set Interpolation"), tr("0-NN 1-BiLinear"), _useBiLinear, 0, 1, 1, &result);
+  
+  if (!result)
+  {
+    return;
+  }
+
+  _useBiLinear = interpolation;
 }
 
 void QtImageViewer::combineFiles(const QString filename1, const QString filename2, const QString filename3)
