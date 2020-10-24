@@ -56,7 +56,7 @@ void Image::intensityPowerLaw(float gamma)
   updateHistogram();
 }
 
-void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float *slopeChangeFractionPoints, float *desiredValueFractionsAtPoints, uint8 algorithm)
+void Image::contrastStretching(int numberOfSlopeChangePoints, float *slopeChangeFractionPoints, float *desiredValueFractionsAtPoints, uint8 algorithm)
 {
   uint16 L = pow(2, _bps);
   Interval *intervals = new Interval[numberOfSlopeChangePoints + 1];
@@ -64,13 +64,16 @@ void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float *slopeCha
   switch (numberOfSlopeChangePoints)
   {
   case 1:
+  {
     Eigen::Vector2f middle = Eigen::Vector2f{round(slopeChangeFractionPoints[0] * (float)L),
                                              round(desiredValueFractionsAtPoints[0] * (float)L)};
 
     intervals[0] = Interval(middle, "r", L);
     intervals[1] = Interval(middle, "l", L);
     break;
+  }
   case 2:
+  {
     Eigen::Vector2f point1 = Eigen::Vector2f{round(slopeChangeFractionPoints[0] * (float)L),
                                              round(desiredValueFractionsAtPoints[0] * (float)L)};
     Eigen::Vector2f point2 = Eigen::Vector2f{round(slopeChangeFractionPoints[1] * (float)L),
@@ -80,7 +83,9 @@ void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float *slopeCha
     intervals[1] = Interval(point1, point2);
     intervals[2] = Interval(point2, "l", L);
     break;
+  }
   default:
+  {
     Eigen::Vector2f point1 = Eigen::Vector2f{round(slopeChangeFractionPoints[0] * (float)L),
                                              round(desiredValueFractionsAtPoints[0] * (float)L)};
     Eigen::Vector2f point2 = Eigen::Vector2f{round(slopeChangeFractionPoints[numberOfSlopeChangePoints - 1] * (float)L),
@@ -99,6 +104,7 @@ void Image::contrastStretching(uint16 numberOfSlopeChangePoints, float *slopeCha
       intervals[i] = Interval(left, right);
     }
     break;
+  }
   }
 
   uint16 point = 0;

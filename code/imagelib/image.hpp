@@ -33,7 +33,7 @@ public:
 	// Intensity transformations
 	void intensityNegate();
 	void intensityPowerLaw(float gamma);
-	void contrastStretching(uint16 numberOfSlopeChangePoints, float *slopeChangeFractionPoints,
+	void contrastStretching(int numberOfSlopeChangePoints, float *slopeChangeFractionPoints,
 							float *desiredValueFractionsAtPoints, uint8 algorithm);
 	void normalizeHistogram();
 	// Spacial filtering
