@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_QtImageViewer_t {
-    QByteArrayData data[18];
-    char stringdata0[164];
+    QByteArrayData data[15];
+    char stringdata0[137];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -38,23 +38,19 @@ QT_MOC_LITERAL(3, 24, 8), // "filename"
 QT_MOC_LITERAL(4, 33, 9), // "showImage"
 QT_MOC_LITERAL(5, 43, 6), // "Image*"
 QT_MOC_LITERAL(6, 50, 3), // "img"
-QT_MOC_LITERAL(7, 54, 11), // "std::string"
-QT_MOC_LITERAL(8, 66, 18), // "transformationType"
-QT_MOC_LITERAL(9, 85, 6), // "float*"
-QT_MOC_LITERAL(10, 92, 6), // "values"
-QT_MOC_LITERAL(11, 99, 10), // "nrOfValues"
-QT_MOC_LITERAL(12, 110, 4), // "left"
-QT_MOC_LITERAL(13, 115, 5), // "right"
-QT_MOC_LITERAL(14, 121, 13), // "showImageLeft"
-QT_MOC_LITERAL(15, 135, 14), // "showImageRight"
-QT_MOC_LITERAL(16, 150, 8), // "openFile"
-QT_MOC_LITERAL(17, 159, 4) // "quit"
+QT_MOC_LITERAL(7, 54, 14), // "transformation"
+QT_MOC_LITERAL(8, 69, 6), // "float*"
+QT_MOC_LITERAL(9, 76, 6), // "values"
+QT_MOC_LITERAL(10, 83, 10), // "nrOfValues"
+QT_MOC_LITERAL(11, 94, 13), // "showImageLeft"
+QT_MOC_LITERAL(12, 108, 14), // "showImageRight"
+QT_MOC_LITERAL(13, 123, 8), // "openFile"
+QT_MOC_LITERAL(14, 132, 4) // "quit"
 
     },
     "QtImageViewer\0showFile\0\0filename\0"
-    "showImage\0Image*\0img\0std::string\0"
-    "transformationType\0float*\0values\0"
-    "nrOfValues\0left\0right\0showImageLeft\0"
+    "showImage\0Image*\0img\0transformation\0"
+    "float*\0values\0nrOfValues\0showImageLeft\0"
     "showImageRight\0openFile\0quit"
 };
 #undef QT_MOC_LITERAL
@@ -65,7 +61,7 @@ static const uint qt_meta_data_QtImageViewer[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      10,   14, // methods
+       9,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -73,24 +69,22 @@ static const uint qt_meta_data_QtImageViewer[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   64,    2, 0x0a /* Public */,
-       4,    1,   67,    2, 0x0a /* Public */,
-       4,    4,   70,    2, 0x0a /* Public */,
-       4,    3,   79,    2, 0x2a /* Public | MethodCloned */,
-       4,    2,   86,    2, 0x2a /* Public | MethodCloned */,
-       4,    3,   91,    2, 0x0a /* Public */,
-      14,    1,   98,    2, 0x0a /* Public */,
-      15,    1,  101,    2, 0x0a /* Public */,
-      16,    0,  104,    2, 0x0a /* Public */,
-      17,    0,  105,    2, 0x0a /* Public */,
+       1,    1,   59,    2, 0x0a /* Public */,
+       4,    1,   62,    2, 0x0a /* Public */,
+       4,    4,   65,    2, 0x0a /* Public */,
+       4,    3,   74,    2, 0x2a /* Public | MethodCloned */,
+       4,    2,   81,    2, 0x2a /* Public | MethodCloned */,
+      11,    1,   86,    2, 0x0a /* Public */,
+      12,    1,   89,    2, 0x0a /* Public */,
+      13,    0,   92,    2, 0x0a /* Public */,
+      14,    0,   93,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void, QMetaType::QString,    3,
     QMetaType::Void, 0x80000000 | 5,    6,
-    QMetaType::Void, 0x80000000 | 5, 0x80000000 | 7, 0x80000000 | 9, QMetaType::Int,    6,    8,   10,   11,
-    QMetaType::Void, 0x80000000 | 5, 0x80000000 | 7, 0x80000000 | 9,    6,    8,   10,
-    QMetaType::Void, 0x80000000 | 5, 0x80000000 | 7,    6,    8,
-    QMetaType::Void, 0x80000000 | 5, QMetaType::Char, QMetaType::Char,    6,   12,   13,
+    QMetaType::Void, 0x80000000 | 5, QMetaType::Int, 0x80000000 | 8, QMetaType::Int,    6,    7,    9,   10,
+    QMetaType::Void, 0x80000000 | 5, QMetaType::Int, 0x80000000 | 8,    6,    7,    9,
+    QMetaType::Void, 0x80000000 | 5, QMetaType::Int,    6,    7,
     QMetaType::Void, 0x80000000 | 5,    6,
     QMetaType::Void, 0x80000000 | 5,    6,
     QMetaType::Void,
@@ -107,14 +101,13 @@ void QtImageViewer::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
         switch (_id) {
         case 0: _t->showFile((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 1: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1]))); break;
-        case 2: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< std::string(*)>(_a[2])),(*reinterpret_cast< float*(*)>(_a[3])),(*reinterpret_cast< int(*)>(_a[4]))); break;
-        case 3: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< std::string(*)>(_a[2])),(*reinterpret_cast< float*(*)>(_a[3]))); break;
-        case 4: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< std::string(*)>(_a[2]))); break;
-        case 5: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< char(*)>(_a[2])),(*reinterpret_cast< char(*)>(_a[3]))); break;
-        case 6: _t->showImageLeft((*reinterpret_cast< Image*(*)>(_a[1]))); break;
-        case 7: _t->showImageRight((*reinterpret_cast< Image*(*)>(_a[1]))); break;
-        case 8: _t->openFile(); break;
-        case 9: _t->quit(); break;
+        case 2: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< float*(*)>(_a[3])),(*reinterpret_cast< int(*)>(_a[4]))); break;
+        case 3: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< float*(*)>(_a[3]))); break;
+        case 4: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 5: _t->showImageLeft((*reinterpret_cast< Image*(*)>(_a[1]))); break;
+        case 6: _t->showImageRight((*reinterpret_cast< Image*(*)>(_a[1]))); break;
+        case 7: _t->openFile(); break;
+        case 8: _t->quit(); break;
         default: ;
         }
     }
@@ -145,13 +138,13 @@ int QtImageViewer::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 10)
+        if (_id < 9)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 10;
+        _id -= 9;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 10)
+        if (_id < 9)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 10;
+        _id -= 9;
     }
     return _id;
 }

@@ -21,28 +21,19 @@ float Interval::linearInterpolation(float x){
   float x1 = _right(0);
   float y0 = _left(1);
   float y1 = _right(1);
-  //std::cout << x << " " << x0 << " " << y0 << " " << x1 << " " << y1 << " ";
 
   if (x == x0) { 
-    //std::cout << y0 << std::endl;
     return y0; 
   }
   else if ( x == x1 ) { 
-    //std::cout << y1 << std::endl;
     return y1; 
   }
   else { 
-    //std::cout << y0 + ((y1-y0)/(x1-x0)) * (x - x0) << std::endl;
     return (y0 + ((y1-y0)/(x1-x0)) * (x - x0)); 
   }
 }
 
-unsigned int Interval::threshold(uint32 x){
-  // float x0 = _left(0);
-  // float x1 = _right(0);
-  // float y0 = _left(1);
-  // float y1 = _right(1);
-  // std::cout << x << " " << x0 << " " << y0 << " " << x1 << " " << y1 << " " << y1 << std::endl;
+unsigned int Interval::threshold(){
   return _left(1);
 }
 

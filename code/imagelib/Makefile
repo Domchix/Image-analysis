@@ -1,5 +1,5 @@
 HEADERS = image.hpp
-SOURCES = image.cpp imagetiff.cpp imagejpeg.cpp imagetransformation.cpp imageintensity.cpp spacialfiltering.cpp interval.cpp
+SOURCES = image.cpp imagetiff.cpp imagejpeg.cpp imagetransformation.cpp imageintensity.cpp interval.cpp
 OBJS = $(SOURCES:.cpp=.o)
 
 TARGET = libimagelib.so

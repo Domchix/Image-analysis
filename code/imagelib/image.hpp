@@ -33,15 +33,8 @@ public:
 	// Intensity transformations
 	void intensityNegate();
 	void intensityPowerLaw(float gamma);
-	void contrastStretching(int numberOfSlopeChangePoints, float *slopeChangeFractionPoints,
-							float *desiredValueFractionsAtPoints, uint8 algorithm);
+	void contrastStretching(int nrOfValues, float *values, uint8 algorithm);
 	void normalizeHistogram();
-	// Spacial filtering
-	void imageBlurring(uint32 filterWidth);
-	void sharpeningUnsharpMask(uint16 blurringFilterWidth, uint8 k = 1);
-	void sharpeningLaplacian(bool useN8 = false, bool getOnlyLaplacian = false);
-	void sobelOperator();
-	void Fig3_43(char imgLetter);
 
 	virtual ~Image();
 	// File related
@@ -103,7 +96,7 @@ public:
 	Interval(Eigen::Vector2f left, Eigen::Vector2f right);
 
 	float linearInterpolation(float x);
-	unsigned int threshold(uint32 x);
+	unsigned int threshold();
 
 	Eigen::Vector2f getLeft();
 	Eigen::Vector2f getRight();

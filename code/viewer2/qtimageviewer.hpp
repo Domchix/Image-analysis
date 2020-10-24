@@ -26,8 +26,7 @@ public:
 public slots:
   void showFile(const QString filename);
   void showImage(Image *img);
-  void showImage(Image *img, std::string transformationType, float *values = nullptr, int nrOfValues = 0);
-  void showImage(Image *img, char left, char right);
+  void showImage(Image *img, int transformation, float *values = nullptr, int nrOfValues = 0);
   void showImageLeft(Image *img);
   void showImageRight(Image *img);
   void openFile();

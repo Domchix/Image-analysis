@@ -1,5 +1,9 @@
 #include "image.hpp"
 
+using Eigen::Vector2f;
+using std::cout;
+using std::endl;
+
 void Image::updateHistogram()
 {
   uint32 imgSize = _width * _height * _channels;
@@ -56,8 +60,23 @@ void Image::intensityPowerLaw(float gamma)
   updateHistogram();
 }
 
-void Image::contrastStretching(int numberOfSlopeChangePoints, float *slopeChangeFractionPoints, float *desiredValueFractionsAtPoints, uint8 algorithm)
+void Image::contrastStretching(int nrOfValues, float *values, uint8 algorithm)
 {
+  int numberOfSlopeChangePoints = nrOfValues / 2;
+  float *slopeChangeFractionPoints = new float[numberOfSlopeChangePoints];
+  float *desiredValueFractionsAtPoints = new float[numberOfSlopeChangePoints];
+  int j = 0;
+  for (int i = 0; i < nrOfValues; i++)
+  {
+    if (i % 2 == 0)
+      slopeChangeFractionPoints[j] = values[i];
+    else
+    {
+      desiredValueFractionsAtPoints[j] = values[i];
+      j++;
+    }
+  }
+
   uint16 L = pow(2, _bps);
   Interval *intervals = new Interval[numberOfSlopeChangePoints + 1];
 
@@ -65,8 +84,8 @@ void Image::contrastStretching(int numberOfSlopeChangePoints, float *slopeChange
   {
   case 1:
   {
-    Eigen::Vector2f middle = Eigen::Vector2f{round(slopeChangeFractionPoints[0] * (float)L),
-                                             round(desiredValueFractionsAtPoints[0] * (float)L)};
+    Vector2f middle = Vector2f{round(slopeChangeFractionPoints[0] * (float)L),
+                               round(desiredValueFractionsAtPoints[0] * (float)L)};
 
     intervals[0] = Interval(middle, "r", L);
     intervals[1] = Interval(middle, "l", L);
@@ -74,32 +93,32 @@ void Image::contrastStretching(int numberOfSlopeChangePoints, float *slopeChange
   }
   case 2:
   {
-    Eigen::Vector2f point1 = Eigen::Vector2f{round(slopeChangeFractionPoints[0] * (float)L),
-                                             round(desiredValueFractionsAtPoints[0] * (float)L)};
-    Eigen::Vector2f point2 = Eigen::Vector2f{round(slopeChangeFractionPoints[1] * (float)L),
-                                             round(desiredValueFractionsAtPoints[1] * (float)L)};
-
+    Vector2f point1 = Vector2f{round(slopeChangeFractionPoints[0] * (float)L),
+                               round(desiredValueFractionsAtPoints[0] * (float)L)};
+    Vector2f point2 = Vector2f{round(slopeChangeFractionPoints[1] * (float)L),
+                               round(desiredValueFractionsAtPoints[1] * (float)L)};
     intervals[0] = Interval(point1, "r", L);
     intervals[1] = Interval(point1, point2);
     intervals[2] = Interval(point2, "l", L);
+
     break;
   }
   default:
   {
-    Eigen::Vector2f point1 = Eigen::Vector2f{round(slopeChangeFractionPoints[0] * (float)L),
-                                             round(desiredValueFractionsAtPoints[0] * (float)L)};
-    Eigen::Vector2f point2 = Eigen::Vector2f{round(slopeChangeFractionPoints[numberOfSlopeChangePoints - 1] * (float)L),
-                                             round(desiredValueFractionsAtPoints[numberOfSlopeChangePoints - 1] * (float)L)};
+    Vector2f point1 = Vector2f{round(slopeChangeFractionPoints[0] * (float)L),
+                               round(desiredValueFractionsAtPoints[0] * (float)L)};
+    Vector2f point2 = Vector2f{round(slopeChangeFractionPoints[numberOfSlopeChangePoints - 1] * (float)L),
+                               round(desiredValueFractionsAtPoints[numberOfSlopeChangePoints - 1] * (float)L)};
 
     intervals[0] = Interval(point1, "r", L);
     intervals[numberOfSlopeChangePoints] = Interval(point2, "l", L);
 
     for (uint16 i = 1; i < numberOfSlopeChangePoints; i++)
     {
-      Eigen::Vector2f left = Eigen::Vector2f{round(slopeChangeFractionPoints[i - 1] * (float)L),
-                                             round(desiredValueFractionsAtPoints[i - 1] * (float)L)};
-      Eigen::Vector2f right = Eigen::Vector2f{round(slopeChangeFractionPoints[i] * (float)L),
-                                              round(desiredValueFractionsAtPoints[i] * (float)L)};
+      Vector2f left = Vector2f{round(slopeChangeFractionPoints[i - 1] * (float)L),
+                               round(desiredValueFractionsAtPoints[i - 1] * (float)L)};
+      Vector2f right = Vector2f{round(slopeChangeFractionPoints[i] * (float)L),
+                                round(desiredValueFractionsAtPoints[i] * (float)L)};
 
       intervals[i] = Interval(left, right);
     }
@@ -118,19 +137,14 @@ void Image::contrastStretching(int numberOfSlopeChangePoints, float *slopeChange
     switch (algorithm)
     {
     case 0:
+    {
       _lookupTable[i] = intervals[point].linearInterpolation(i);
-      break;
+    }
+    break;
     case 1:
-      _lookupTable[i] = intervals[point].threshold(i);
-    case 2:
-      if (point == 0 || point == numberOfSlopeChangePoints)
-      {
-        _lookupTable[i] = i;
-      }
-      else
-      {
-        _lookupTable[i] = intervals[point].threshold(i);
-      }
+    {
+      _lookupTable[i] = intervals[point].threshold();
+    }
     default:
       break;
     }
