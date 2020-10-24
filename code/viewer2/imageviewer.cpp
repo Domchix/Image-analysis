@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <QApplication>
 #include <Eigen/Core>
-#include <math.h>
 
 
 int main(int argc, char** argv){
