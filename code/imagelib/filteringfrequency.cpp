@@ -75,7 +75,7 @@ void Image::FilterInFrequency(Filter Filter, FilterType type, FilterStage stage,
 
 float Image::IdealFilter(FilterType type, float D0, float D)
 {
-    bool filterPx = type == Low ? true : false;q
+    bool filterPx = type == Low ? true : false;
     return D <= D0 ? filterPx : !filterPx;
 }
 float Image::ButterworthFilter(FilterType type, float D0, float D, int n)
