@@ -40,7 +40,7 @@ bool Image::loadJpegImageFile(char *lpFilename)
 
   std::cout << "Width: " << _width << "Height: " << _height << " Channels:" << _channels << std::endl;
 
-  dwBufferBytes = _width * _height * _channels;
+  dwBufferBytes = getImageSize();
   std::cout << "Size: " << dwBufferBytes << std::endl;
   lpData = (unsigned char *)malloc(sizeof(unsigned char) * dwBufferBytes);
 

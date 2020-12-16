@@ -25,8 +25,12 @@ public:
 
 public slots:
   void showFile(const QString filename);
+  void showImage(int width, int height, float alphaX, float alphaY);
+  void showImage(int width, int height, float alphaX);
   void showImage(Image *img);
+  void showImage(Image *img, Image::FourierStage stage);
   void showImage(Image *img, int transformation, float *values = nullptr, int nrOfValues = 0);
+  void showImage(Image *img, Image::Filter filter, Image::FilterType type, Image::FilterStage stage, double radius, int n);
   void showImageLeft(Image *img);
   void showImageRight(Image *img);
   void openFile();

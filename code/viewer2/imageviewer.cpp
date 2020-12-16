@@ -12,11 +12,37 @@
 using std::cout;
 using std::endl;
 
+void InvalidArguments();
+bool HandleInput(int argc, char **argv, QApplication *app, QtImageViewer *imv);
+
 int main(int argc, char **argv)
 {
   QApplication app(argc, argv);
   QtImageViewer *imv = new QtImageViewer();
 
+  if (HandleInput(argc, argv, &app, imv) == false)
+  {
+    return 0;
+  }
+
+  imv->show();
+  imv->resize(1000, 600);
+
+  int ret = app.exec();
+
+  delete (imv);
+
+  return ret;
+}
+
+void InvalidArguments()
+{
+  std::cout << "Invalid number of arguments" << std::endl;
+  std::exit(0);
+}
+
+bool HandleInput(int argc, char **argv, QApplication *app, QtImageViewer *imv)
+{
   if (argc >= 2)
   {
     if (argc == 2)
@@ -24,31 +50,50 @@ int main(int argc, char **argv)
       QString filename(argv[1]);
       cout << "Load directly: " << filename.toStdString() << endl;
       imv->showFile(filename);
+      return true;
     }
-    else if (std::string(argv[1]) == "power")
+
+    std::string command = std::string(argv[1]);
+
+    if (command == "fgenerate")
+    {
+      if (argc != 6 && argc != 5)
+      {
+        InvalidArguments();
+        return false;
+      }
+      if (argc == 5)
+      {
+        imv->showImage(atoi(argv[2]), atoi(argv[3]), atof(argv[4]));
+        return true;
+      }
+      imv->showImage(atoi(argv[2]), atoi(argv[3]), atof(argv[4]), atof(argv[5]));
+      return true;
+    }
+
+    QString filename(argv[2]);
+    Image *myImage = new Image(filename.toStdString());
+
+    if (command == "power")
     {
       if (argc != 4)
       {
-        cout << "Invalid number of arguments" << endl;
+        InvalidArguments();
+        return false;
       }
-      else
-      {
-        QString filename(argv[2]);
-        Image *myImage = new Image(filename.toStdString());
-        std::cout << "Loading and applying power law: " << filename.toStdString() << std::endl;
-        float *gamm = new float[1]{atof(argv[3])};
-        imv->showImage(myImage, 0, gamm);
-      }
+      std::cout << "Loading and applying power law: " << filename.toStdString() << std::endl;
+
+      float *gamm = new float[1]{atof(argv[3])};
+      imv->showImage(myImage, 0, gamm);
     }
-    else if (std::string(argv[1]) == "linear" || std::string(argv[1]) == "threshold")
+    else if (command == "linear" || command == "threshold")
     {
       if ((argc - 3) % 2 != 0)
       {
         std::cout << "lines must be even (x and y pairs)";
-        return 0;
+        InvalidArguments();
+        return false;
       }
-      QString filename(argv[2]);
-      Image *myImage = new Image(filename.toStdString());
       std::cout << "Loading and streaching contrast: " << filename.toStdString() << std::endl;
 
       float *values = new float[argc - 3];
@@ -75,28 +120,40 @@ int main(int argc, char **argv)
       }
       imv->showImage(myImage, method, values, nrOfValues);
     }
-    else if (std::string(argv[1]) == "normalize")
+    else if (command == "normalize")
     {
-      if (argc == 3)
+      if (argc != 3)
       {
-        QString filename(argv[2]);
-        Image *myImage = new Image(filename.toStdString());
-        std::cout << "Loading and normalizing histogram: " << filename.toStdString() << std::endl;
-        imv->showImage(myImage, 3);
+        InvalidArguments();
+        return false;
       }
-      else
+      std::cout << "Loading and normalizing histogram: " << filename.toStdString() << std::endl;
+
+      imv->showImage(myImage, 3);
+    }
+    else if (command == "ftransform")
+    {
+      if (argc != 4)
       {
-        std::cout << "Invalid number of arguments for operation 'normalize'" << std::endl;
-        std::exit(0);
+        InvalidArguments();
+        return false;
       }
+
+      imv->showImage(myImage, (Image::FourierStage)atoi(argv[3]));
+    }
+    else if (command == "ffilter")
+    {
+      if (argc != 7 && argc != 8)
+      {
+        InvalidArguments();
+        return false;
+      }
+
+      int n = argc == 8 ? atoi(argv[7]) : 0;
+
+      imv->showImage(myImage, (Image::Filter)atoi(argv[3]), (Image::FilterType)atoi(argv[4]), (Image::FilterStage)atoi(argv[5]), atof(argv[6]), n);
     }
   }
-  imv->show();
-  imv->resize(1000, 600);
 
-  int ret = app.exec();
-
-  delete (imv);
-
-  return ret;
+  return true;
 }

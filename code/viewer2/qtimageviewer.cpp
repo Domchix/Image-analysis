@@ -105,6 +105,36 @@ void QtImageViewer::showImage(Image *img)
   showImageLeft(img);
 }
 
+void QtImageViewer::showImage(Image *img, Image::FourierStage stage)
+{
+  std::cout << "Fourier transform" << std::endl;
+  showImageLeft(img);
+  Image *copy = new Image(*(img));
+
+  copy->ApplyFourierTransform(stage);
+
+  showImageRight(copy);
+  delete (copy);
+
+  update();
+  delete (img);
+}
+
+void QtImageViewer::showImage(Image *img, Image::Filter filter, Image::FilterType type, Image::FilterStage stage, double radius, int n)
+{
+  std::cout << "Filtering in frequency space" << std::endl;
+  showImageLeft(img);
+  Image *copy = new Image(*(img));
+
+  copy->FilterInFrequency(filter, type, stage, radius, n);
+
+  showImageRight(copy);
+  delete (copy);
+
+  update();
+  delete (img);
+}
+
 void QtImageViewer::showImage(Image *img, int transformation, float *values, int nrOfValues)
 {
   std::cout << "Transform and show Image! " << std::endl;
@@ -113,7 +143,7 @@ void QtImageViewer::showImage(Image *img, int transformation, float *values, int
   switch (transformation)
   {
   case 0:
-    copy->intensityPowerLaw(values[0]);
+    copy->intensityPowerLawInt(values[0]);
     break;
   case 1:
     copy->contrastStretching(nrOfValues, values, 0);
@@ -133,6 +163,36 @@ void QtImageViewer::showImage(Image *img, int transformation, float *values, int
 
   update(); // For Qt to redraw with new image
   delete (img);
+}
+
+void QtImageViewer::showImage(int width, int height, float alphaX)
+{
+  std::cout << "Generating fourier image" << std::endl;
+  Image *img = new Image(alphaX, width, height);
+  showImageLeft(img);
+
+  Image *copy = new Image(*(img));
+  copy->ApplyFourierTransform(Image::FourierStage::dft);
+  showImageRight(copy);
+
+  delete (copy);
+  delete (img);
+  update();
+}
+
+void QtImageViewer::showImage(int width, int height, float alphaX, float alphaY)
+{
+  std::cout << "Generating fourier image" << std::endl;
+  Image *img = new Image(width, height, alphaX, alphaY);
+  showImageLeft(img);
+
+  Image *copy = new Image(*(img));
+  copy->ApplyFourierTransform(Image::FourierStage::dft);
+  showImageRight(copy);
+
+  delete (copy);
+  delete (img);
+  update();
 }
 
 void QtImageViewer::showImageLeft(Image *img)

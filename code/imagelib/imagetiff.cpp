@@ -1,11 +1,5 @@
 #include "image.hpp"
 
-#include <iostream>
-#include <tiffio.h> // Note use of libtiff
-#include <cstring>
-
-// See http://www.libtiff.org/ for use
-// and https://www.awaresystems.be/imaging/tiff.html for tags
 
 bool Image::readTiffMetaData(TIFF *tiff)
 {
@@ -33,7 +27,7 @@ bool Image::loadTiffTiled(TIFF *tiff)
   std::cout << "Tile Height: " << tileHeight << std::endl;
 
   // Aloc image
-  _data = (unsigned char *)_TIFFmalloc(_width * _height * _channels);
+  _data = (unsigned char *)_TIFFmalloc(getImageSize());
 
   // Aloc tile
   unsigned char *buffer = (unsigned char *)_TIFFmalloc(tileWidth * tileHeight * _channels);
@@ -43,10 +37,8 @@ bool Image::loadTiffTiled(TIFF *tiff)
   {
     for (unsigned long x = 0; x < _width; x += tileWidth)
     {
-      // Read tile
       TIFFReadTile(tiff, buffer, x, y, 0, 0);
 
-      // Iterate
       for (unsigned int ty = 0; ty < tileHeight; ty++)
       {
         for (unsigned long tx = 0; tx < tileWidth; tx++)
@@ -75,7 +67,7 @@ bool Image::loadTiffScanline(TIFF *tiff)
   tmsize_t lineSize = TIFFScanlineSize(tiff);
 
   // Aloc image
-  _data = (unsigned char *)_TIFFmalloc(_width * _height * _channels);
+  _data = (unsigned char *)_TIFFmalloc(getImageSize());
 
   // Aloc buffer
   unsigned char *buf = (unsigned char *)_TIFFmalloc(lineSize);
@@ -208,5 +200,6 @@ Image::Image(std::string filename1, std::string filename2, std::string filename3
   this->saveTiff();
 }
 
+// NOTE
 // combine example -> ./imageviewer ../../week1/Region_001_FOV_00041_Acridine_Or_Gray.tif ../../week1/Region_001_FOV_00041_DAPI_Gray.tif ../../week1/Region_001_FOV_00041_FITC_Gray.tif
 // ./imageviewer ../../week1/Region_001_FOV_00041_Acridine_Or_Gray.tif ../../week1/Region_001_FOV_00041_FITC_Gray.tif ../../week1/Region_001_FOV_00041_DAPI_Gray.tif

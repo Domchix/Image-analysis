@@ -6,7 +6,7 @@ using std::endl;
 
 void Image::updateHistogram()
 {
-  uint32 imgSize = _width * _height * _channels;
+  uint32 imgSize = getImageSize();
   for (uint32 i = 0; i < 256; i++)
   {
     _histogram[i] = 0;
@@ -41,23 +41,35 @@ void Image::intensityNegate()
   {
     _lookupTable[i] = (L - 1) - i;
   }
+  UpdateIntensityMetadata();
+}
+
+void Image::UpdateIntensityMetadata()
+{
   remapPixels();
   updateHistogram();
 }
 
-void Image::intensityPowerLaw(float gamma)
+void Image::intensityPowerLawFloat(float gamma)
 {
   uint16 L = pow(2, _bps);
+  for (uint32 i = 0; i < getImageSize(); i++)
+  {
+    float scaledPixel = _fData[i] / (L - 1);
+    _fData[i] = pow(scaledPixel, gamma) * (L - 1);
+  }
+}
 
+void Image::intensityPowerLawInt(float gamma)
+{
+  uint16 L = pow(2, _bps);
   _lookupTable[0] = pow(0.5 / 255.0, gamma) * 255;
-
   for (uint16 i = 1; i < L; i++)
   {
     float scaledPixel = (float)i / (float)(L - 1);
     _lookupTable[i] = pow(scaledPixel, gamma) * 255;
   }
-  remapPixels();
-  updateHistogram();
+  UpdateIntensityMetadata();
 }
 
 void Image::contrastStretching(int nrOfValues, float *values, uint8 algorithm)

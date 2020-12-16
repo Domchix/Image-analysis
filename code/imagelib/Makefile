@@ -1,5 +1,5 @@
 HEADERS = image.hpp
-SOURCES = image.cpp imagetiff.cpp imagejpeg.cpp imagetransformation.cpp imageintensity.cpp interval.cpp
+SOURCES = image.cpp imagetiff.cpp imagejpeg.cpp imagetransformation.cpp imageintensity.cpp interval.cpp fouriertransform.cpp filteringfrequency.cpp
 OBJS = $(SOURCES:.cpp=.o)
 
 TARGET = libimagelib.so
@@ -9,7 +9,7 @@ TARGET = libimagelib.so
 all: $(TARGET)
 
 $(TARGET): $(HEADERS) $(OBJS)
-	g++ $(OBJS) -shared -o $(TARGET)
+	g++ $(OBJS) -shared -lfftw3 -lm -ldl -o $(TARGET)
 
 # '$@' matches target, '%<' matches source
 %.o: %.cpp image.hpp

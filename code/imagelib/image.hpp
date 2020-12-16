@@ -1,11 +1,15 @@
-#ifndef SIMPLE_IMAGE_LIBRARY_HPP
+#pragma once
+
 #define SIMPLE_IMAGE_LIBRARY_HPP
 
-#include <string>
-#include <tiffio.h>
-#include <Eigen/Core>
-#include <vector>
 #include <iostream>
+#include <string>
+#include <cstring>
+#include <vector>
+#include <tiffio.h> // Note use of libtiff
+#include <Eigen/LU>
+#include <Eigen/Core>
+#include <fftw3.h>
 
 class Image
 {
@@ -24,6 +28,8 @@ public:
 	Image(BBox box);
 	Image(unsigned int width, unsigned int height, float pixelUnit);
 	Image(unsigned int width, unsigned int height, BBox region);
+	Image(unsigned int width, unsigned int height, float alphaX, float alphaY);
+	Image(float alphaX, unsigned int width, unsigned int height);
 
 	// Transformation
 	Image *ScaleImage(float scale, bool useBiLinear);
@@ -32,9 +38,40 @@ public:
 
 	// Intensity transformations
 	void intensityNegate();
-	void intensityPowerLaw(float gamma);
+	void intensityPowerLawInt(float gamma);
+	void intensityPowerLawFloat(float gamma);
 	void contrastStretching(int nrOfValues, float *values, uint8 algorithm);
 	void normalizeHistogram();
+
+	// Fourier transform
+	enum FourierStage
+	{
+		Padded = 0,
+		Shifted = 1,
+		dft = 2,
+		idft = 3,
+		Final = 4
+	};
+	void ApplyFourierTransform(Image::FourierStage stage);
+	// Filtering in frequency space
+	enum Filter
+	{
+		Ideal = 0,
+		Butterworth = 1,
+		Gaussian = 2
+	};
+	enum FilterType
+	{
+		Low = 0,
+		High = 1
+	};
+	enum FilterStage
+	{
+		FilterStandalone = 0,
+		FilterApplied = 1,
+		FilterAppliedFinal = 2
+	};
+	void FilterInFrequency(Filter Filter, FilterType type, FilterStage stage, double radius, uint16 n = 0);
 
 	virtual ~Image();
 	// File related
@@ -49,6 +86,7 @@ public:
 	unsigned long getBitsPerSample();
 	unsigned long getPixelUnit();
 	unsigned long getSamplesPerPixel();
+	unsigned long getImageSize();
 	std::vector<unsigned int> getHistogram();
 	BBox getRegion();
 
@@ -63,6 +101,8 @@ private:
 	std::vector<unsigned int> _histogram = std::vector<unsigned int>(256, 0);
 
 	unsigned char *_data{nullptr};
+	float *_fData{nullptr};
+	fftw_complex *_complexData{nullptr};
 
 	BBox _region;
 	// Tiff related stuff
@@ -83,9 +123,28 @@ private:
 	unsigned char getIntensity(Eigen::Vector3i &idx);
 	void setIntensity(Eigen::Vector3i &idx, unsigned char intensity);
 	// Intensity stuff
+	void UpdateIntensityMetadata();
 	void remapPixels();
 	void updateHistogram();
 	// Spacial filtering stuff
+
+	// Fourier transform stuff
+	const int REAL = 0;
+	const int IMAGINARY = 1;
+	void FourierTransform(Image::FourierStage stage);
+	void DFT();
+	void IDFT();
+	void PadImage(float xMult, float yMult);
+	void ShiftPeriodicity(bool hideNegative = false);
+	void ShiftInversePeriodicity();
+	void ComplexToData(float gamma);
+	// Image generation
+	void generateLineImage(float alphaXMultiplier, float alphaYMultiplier);
+	void generateCircleImage(float alphaXMultiplier);
+	// Filter in frequency
+	float IdealFilter(FilterType type, float D0, float D);
+	float ButterworthFilter(FilterType type, float D0, float D, int n);
+	float GaussianFilter(FilterType type, float D0, float D);
 };
 
 class Interval
@@ -104,4 +163,3 @@ public:
 private:
 	Eigen::Vector2f _left, _right;
 };
-#endif

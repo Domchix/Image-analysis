@@ -1,8 +1,4 @@
-#include <iostream>
 #include "image.hpp"
-
-#include <Eigen/Core>
-#include <Eigen/LU>
 
 using Eigen::Matrix3f;
 using Eigen::Vector3f;
@@ -11,6 +7,7 @@ using std::cout;
 using std::endl;
 using std::max;
 using std::min;
+
 
 void printRegion(Image::BBox region)
 {
@@ -111,7 +108,7 @@ Image *Image::transformImage(Matrix3f T, bool useBiLinear)
     unsigned long newWidth = (newRegion.max_x - newRegion.min_x + 1);
     unsigned long newHeight = (newRegion.max_y - newRegion.min_y + 1);
 
-    Image *newImage = new Image(newWidth, newHeight, 1);
+    Image *newImage = new Image(newWidth, newHeight, 1.0f);
     newImage->_region = newRegion;
 
     Matrix3f IwNew = getIndexToWorldMatrix(newHeight, newRegion, _pixelUnit);

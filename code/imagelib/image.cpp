@@ -1,7 +1,5 @@
 #include "image.hpp"
 
-#include <iostream>
-
 Image::Image(){};
 
 Image::Image(std::string filename)
@@ -20,7 +18,7 @@ Image::Image(const Image &image)
   _width = image._width;
   _height = image._height;
 
-  unsigned long size = _width * _height * _channels;
+  unsigned long size = getImageSize();
   _data = new unsigned char[size];
   for (long i = 0; i < size; i++)
   {
@@ -47,6 +45,28 @@ Image::Image(unsigned int width, unsigned int height, float pixelUnit)
   _channels = 1;
   _data = new unsigned char[_width * _height];
   updateHistogram();
+}
+
+Image::Image(unsigned int width, unsigned int height, float alphaX, float alphaY)
+{
+  _width = width;
+  _height = height;
+  _channels = 1;
+  _bps = 8;
+  _data = new unsigned char[getImageSize()];
+
+  generateLineImage(alphaX, alphaY);
+}
+
+Image::Image( float alphaX, unsigned int width, unsigned int height)
+{
+  _width = width;
+  _height = height;
+  _channels = 1;
+  _bps = 8;
+  _data = new unsigned char[getImageSize()];
+
+  generateCircleImage(alphaX);
 }
 
 Image::~Image()
@@ -76,5 +96,6 @@ unsigned long Image::getChannels() { return _channels; };
 unsigned long Image::getBitsPerSample() { return _bps; };
 unsigned long Image::getSamplesPerPixel() { return _channels; };
 unsigned long Image::getPixelUnit() { return _pixelUnit; };
+unsigned long Image::getImageSize() { return _width * _height * _channels; }
 Image::BBox Image::getRegion() { return _region; };
 std::vector<unsigned int> Image::getHistogram() { return _histogram; };
