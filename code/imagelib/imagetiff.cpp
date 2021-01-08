@@ -1,9 +1,8 @@
 #include "image.hpp"
 
-
 bool Image::readTiffMetaData(TIFF *tiff)
 {
-  std::cout<<"Test";
+  std::cout << "Test";
   TIFFSetDirectory(tiff, 0); // NB!
   // Read using TIFFGetField
   TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &_width);
@@ -95,7 +94,7 @@ bool Image::loadTiff(std::string filename)
   // Read image meta data, height, width etc.
 
   this->readTiffMetaData(tiff);
-  
+
   if (TIFFIsTiled(tiff))
     return loadTiffTiled(tiff);
   else
@@ -187,17 +186,22 @@ Image::Image(std::string filename1, std::string filename2, std::string filename3
   _depth = image1->_depth;
   _channels = 3;
   _data = new unsigned char[size * 3];
+  _redData = new unsigned char[size];
+  _greenData = new unsigned char[size];
+  _blueData = new unsigned char[size];
+  std::cout << "SIZE " << size << std::endl;
 
   //Combine data
   for (unsigned long x = 0; x < size; x++)
   {
-    _data[x * 3] = image1->_data[x];
-    _data[x * 3 + 1] = image2->_data[x];
-    _data[x * 3 + 2] = image3->_data[x];
+    _data[x * 3] = _redData[x] = image1->_data[x];
+    _data[x * 3 + 1] = _greenData[x] = image2->_data[x];
+    _data[x * 3 + 2] = _blueData[x] = image3->_data[x];
   }
-
+  OutputMetadata();
+  
   //Save to file
-  this->saveTiff();
+  //this->saveTiff();
 }
 
 // NOTE

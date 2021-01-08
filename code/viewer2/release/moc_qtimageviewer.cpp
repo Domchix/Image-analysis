@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_QtImageViewer_t {
-    QByteArrayData data[28];
-    char stringdata0[262];
+    QByteArrayData data[31];
+    char stringdata0[324];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -55,10 +55,13 @@ QT_MOC_LITERAL(20, 186, 4), // "type"
 QT_MOC_LITERAL(21, 191, 18), // "Image::FilterStage"
 QT_MOC_LITERAL(22, 210, 6), // "radius"
 QT_MOC_LITERAL(23, 217, 1), // "n"
-QT_MOC_LITERAL(24, 219, 13), // "showImageLeft"
-QT_MOC_LITERAL(25, 233, 14), // "showImageRight"
-QT_MOC_LITERAL(26, 248, 8), // "openFile"
-QT_MOC_LITERAL(27, 257, 4) // "quit"
+QT_MOC_LITERAL(24, 219, 16), // "Image::FISHStage"
+QT_MOC_LITERAL(25, 236, 24), // "Image::CircuitBoardStage"
+QT_MOC_LITERAL(26, 261, 19), // "Image::BottlesStage"
+QT_MOC_LITERAL(27, 281, 13), // "showImageLeft"
+QT_MOC_LITERAL(28, 295, 14), // "showImageRight"
+QT_MOC_LITERAL(29, 310, 8), // "openFile"
+QT_MOC_LITERAL(30, 319, 4) // "quit"
 
     },
     "QtImageViewer\0showFile\0\0filename\0"
@@ -67,8 +70,9 @@ QT_MOC_LITERAL(27, 257, 4) // "quit"
     "transformation\0float*\0values\0nrOfValues\0"
     "Image::Filter\0filter\0Image::FilterType\0"
     "type\0Image::FilterStage\0radius\0n\0"
-    "showImageLeft\0showImageRight\0openFile\0"
-    "quit"
+    "Image::FISHStage\0Image::CircuitBoardStage\0"
+    "Image::BottlesStage\0showImageLeft\0"
+    "showImageRight\0openFile\0quit"
 };
 #undef QT_MOC_LITERAL
 
@@ -78,7 +82,7 @@ static const uint qt_meta_data_QtImageViewer[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      13,   14, // methods
+      16,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -86,19 +90,22 @@ static const uint qt_meta_data_QtImageViewer[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    1,   79,    2, 0x0a /* Public */,
-       4,    4,   82,    2, 0x0a /* Public */,
-       4,    3,   91,    2, 0x0a /* Public */,
-       4,    1,   98,    2, 0x0a /* Public */,
-       4,    2,  101,    2, 0x0a /* Public */,
-       4,    4,  106,    2, 0x0a /* Public */,
-       4,    3,  115,    2, 0x2a /* Public | MethodCloned */,
-       4,    2,  122,    2, 0x2a /* Public | MethodCloned */,
-       4,    6,  127,    2, 0x0a /* Public */,
-      24,    1,  140,    2, 0x0a /* Public */,
-      25,    1,  143,    2, 0x0a /* Public */,
-      26,    0,  146,    2, 0x0a /* Public */,
-      27,    0,  147,    2, 0x0a /* Public */,
+       1,    1,   94,    2, 0x0a /* Public */,
+       4,    4,   97,    2, 0x0a /* Public */,
+       4,    3,  106,    2, 0x0a /* Public */,
+       4,    1,  113,    2, 0x0a /* Public */,
+       4,    2,  116,    2, 0x0a /* Public */,
+       4,    4,  121,    2, 0x0a /* Public */,
+       4,    3,  130,    2, 0x2a /* Public | MethodCloned */,
+       4,    2,  137,    2, 0x2a /* Public | MethodCloned */,
+       4,    6,  142,    2, 0x0a /* Public */,
+       4,    2,  155,    2, 0x0a /* Public */,
+       4,    2,  160,    2, 0x0a /* Public */,
+       4,    2,  165,    2, 0x0a /* Public */,
+      27,    1,  170,    2, 0x0a /* Public */,
+      28,    1,  173,    2, 0x0a /* Public */,
+      29,    0,  176,    2, 0x0a /* Public */,
+      30,    0,  177,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void, QMetaType::QString,    3,
@@ -110,6 +117,9 @@ static const uint qt_meta_data_QtImageViewer[] = {
     QMetaType::Void, 0x80000000 | 9, QMetaType::Int, 0x80000000 | 14,   10,   13,   15,
     QMetaType::Void, 0x80000000 | 9, QMetaType::Int,   10,   13,
     QMetaType::Void, 0x80000000 | 9, 0x80000000 | 17, 0x80000000 | 19, 0x80000000 | 21, QMetaType::Double, QMetaType::Int,   10,   18,   20,   12,   22,   23,
+    QMetaType::Void, 0x80000000 | 9, 0x80000000 | 24,   10,   12,
+    QMetaType::Void, 0x80000000 | 9, 0x80000000 | 25,   10,   12,
+    QMetaType::Void, 0x80000000 | 9, 0x80000000 | 26,   10,   12,
     QMetaType::Void, 0x80000000 | 9,   10,
     QMetaType::Void, 0x80000000 | 9,   10,
     QMetaType::Void,
@@ -133,10 +143,13 @@ void QtImageViewer::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _i
         case 6: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< float*(*)>(_a[3]))); break;
         case 7: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         case 8: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< Image::Filter(*)>(_a[2])),(*reinterpret_cast< Image::FilterType(*)>(_a[3])),(*reinterpret_cast< Image::FilterStage(*)>(_a[4])),(*reinterpret_cast< double(*)>(_a[5])),(*reinterpret_cast< int(*)>(_a[6]))); break;
-        case 9: _t->showImageLeft((*reinterpret_cast< Image*(*)>(_a[1]))); break;
-        case 10: _t->showImageRight((*reinterpret_cast< Image*(*)>(_a[1]))); break;
-        case 11: _t->openFile(); break;
-        case 12: _t->quit(); break;
+        case 9: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< Image::FISHStage(*)>(_a[2]))); break;
+        case 10: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< Image::CircuitBoardStage(*)>(_a[2]))); break;
+        case 11: _t->showImage((*reinterpret_cast< Image*(*)>(_a[1])),(*reinterpret_cast< Image::BottlesStage(*)>(_a[2]))); break;
+        case 12: _t->showImageLeft((*reinterpret_cast< Image*(*)>(_a[1]))); break;
+        case 13: _t->showImageRight((*reinterpret_cast< Image*(*)>(_a[1]))); break;
+        case 14: _t->openFile(); break;
+        case 15: _t->quit(); break;
         default: ;
         }
     }
@@ -167,13 +180,13 @@ int QtImageViewer::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 13)
+        if (_id < 16)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 13;
+        _id -= 16;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 13)
+        if (_id < 16)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 13;
+        _id -= 16;
     }
     return _id;
 }

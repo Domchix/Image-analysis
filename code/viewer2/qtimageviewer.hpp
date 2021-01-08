@@ -31,6 +31,10 @@ public slots:
   void showImage(Image *img, Image::FourierStage stage);
   void showImage(Image *img, int transformation, float *values = nullptr, int nrOfValues = 0);
   void showImage(Image *img, Image::Filter filter, Image::FilterType type, Image::FilterStage stage, double radius, int n);
+  void showImage(Image *img, Image::FISHStage stage);
+  void showImage(Image *img, Image::CircuitBoardStage stage);
+  void showImage(Image *img, Image::BottlesStage stage);
+
   void showImageLeft(Image *img);
   void showImageRight(Image *img);
   void openFile();
@@ -40,6 +44,7 @@ private:
   void init();
   void createActions();
   void createMenus();
+  void cleanup(Image* original, Image* copy);
 
   QImage _lImage;
   QLabel *_lImageLabel{nullptr};

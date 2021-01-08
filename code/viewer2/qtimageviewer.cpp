@@ -13,6 +13,9 @@
 
 #include <iostream>
 
+using std::cout;
+using std::endl;
+
 QtImageViewer::QtImageViewer(QWidget *parent) : QMainWindow(parent)
 {
   init();
@@ -90,6 +93,13 @@ void QtImageViewer::openFile()
   showFile(filename);
 }
 
+void QtImageViewer::cleanup(Image *original, Image *copy)
+{
+  delete (copy);
+  delete (original);
+  update();
+}
+
 void QtImageViewer::showFile(const QString filename)
 {
 
@@ -114,10 +124,7 @@ void QtImageViewer::showImage(Image *img, Image::FourierStage stage)
   copy->ApplyFourierTransform(stage);
 
   showImageRight(copy);
-  delete (copy);
-
-  update();
-  delete (img);
+  cleanup(img, copy);
 }
 
 void QtImageViewer::showImage(Image *img, Image::Filter filter, Image::FilterType type, Image::FilterStage stage, double radius, int n)
@@ -129,10 +136,8 @@ void QtImageViewer::showImage(Image *img, Image::Filter filter, Image::FilterTyp
   copy->FilterInFrequency(filter, type, stage, radius, n);
 
   showImageRight(copy);
-  delete (copy);
 
-  update();
-  delete (img);
+  cleanup(img, copy);
 }
 
 void QtImageViewer::showImage(Image *img, int transformation, float *values, int nrOfValues)
@@ -157,12 +162,9 @@ void QtImageViewer::showImage(Image *img, int transformation, float *values, int
   default:
     break;
   }
-
   showImageRight(copy);
-  delete (copy);
 
-  update(); // For Qt to redraw with new image
-  delete (img);
+  cleanup(img, copy);
 }
 
 void QtImageViewer::showImage(int width, int height, float alphaX)
@@ -175,9 +177,7 @@ void QtImageViewer::showImage(int width, int height, float alphaX)
   copy->ApplyFourierTransform(Image::FourierStage::dft);
   showImageRight(copy);
 
-  delete (copy);
-  delete (img);
-  update();
+  cleanup(img, copy);
 }
 
 void QtImageViewer::showImage(int width, int height, float alphaX, float alphaY)
@@ -190,14 +190,48 @@ void QtImageViewer::showImage(int width, int height, float alphaX, float alphaY)
   copy->ApplyFourierTransform(Image::FourierStage::dft);
   showImageRight(copy);
 
-  delete (copy);
-  delete (img);
-  update();
+  cleanup(img, copy);
+}
+
+void QtImageViewer::showImage(Image *img, Image::FISHStage stage)
+{
+  cout << "FISH image processing task" << endl;
+  img->SetViewToSingleColor(Image::Color::Blue);
+  showImageLeft(img);
+
+  Image *copy = new Image(*(img), true);
+  copy->FISHSignalCounts(stage);
+  showImageRight(copy);
+
+  cleanup(img, copy);
+}
+
+void QtImageViewer::showImage(Image *img, Image::CircuitBoardStage stage)
+{
+  cout << "Circuit board quality assurance processing task" << endl;
+
+  showImageLeft(img);
+  Image *copy = new Image(*(img));
+  copy->CircuitBoard(stage);
+  showImageRight(copy);
+
+  cleanup(img, copy);
+}
+
+void QtImageViewer::showImage(Image *img, Image::BottlesStage stage)
+{
+  cout << "Bottles processing task" << endl;
+
+  showImageLeft(img);
+  Image *copy = new Image(*(img));
+  copy->Bottles(stage);
+  showImageRight(copy);
+
+  cleanup(img, copy);
 }
 
 void QtImageViewer::showImageLeft(Image *img)
 {
-
   QImage::Format format = QImage::Format_Invalid;
 
   if (img->getSamplesPerPixel() == 3)

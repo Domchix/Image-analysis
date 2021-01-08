@@ -86,3 +86,36 @@ float Image::GaussianFilter(FilterType type, float D0, float D)
 {
     return type == Low ? (exp(-((D * D) / (2.0f * (D0 * D0))))) : (1 - exp(-((D * D) / (2.0f * (D0 * D0)))));
 }
+
+void Image::RemoveSaltandPepper()
+{
+    cout << "removing salt and pep" << endl;
+    for (uint32 y = 0; y < _height; y++)
+        for (uint32 x = 0; x < _width; x++)
+        {
+            uint32 index = y * _width + x;
+            if (_data[index] == MIN_INTENSITY || _data[index] == MAX_INTENSITY)
+            {
+                MedianFilter(x, y, 3);
+            }
+        }
+}
+
+void Image::MedianFilter(uint32 x, uint32 y, int filterWidth)
+{
+    int a = (filterWidth - 1) / 2;
+
+    std::vector<uint16> filter;
+    for (int t = -a; t <= a; t++)
+        for (int s = -a; s <= a; s++)
+        {
+            int fx = x - s;
+            int fy = y - t;
+            if (fx >= 0 && fy >= 0 && fx < _width && fy < _height)
+            {
+                filter.push_back((int)_data[fy * _width + fx]);
+            }
+        }
+    std::sort(filter.begin(), filter.end());
+    _data[y * _width + x] = static_cast<unsigned char>(filter[filter.size() / 2]);
+}

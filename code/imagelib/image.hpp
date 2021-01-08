@@ -11,18 +11,28 @@
 #include <Eigen/Core>
 #include <fftw3.h>
 
+struct BBox
+{
+	float min_x{0};
+	float min_y{0};
+	float max_x;
+	float max_y;
+};
+
+class Component
+{
+public:
+	Component(){};
+	int Label;
+	unsigned char Intensity;
+	std::vector<uint32> Pixels;
+};
+
 class Image
 {
 public:
-	struct BBox
-	{
-		float min_x{0};
-		float min_y{0};
-		float max_x;
-		float max_y;
-	};
 	Image();
-	Image(const Image &);
+	Image(const Image &, bool rgb = false);
 	Image(std::string filename);
 	Image(std::string filename1, std::string filename2, std::string filename3);
 	Image(BBox box);
@@ -30,6 +40,17 @@ public:
 	Image(unsigned int width, unsigned int height, BBox region);
 	Image(unsigned int width, unsigned int height, float alphaX, float alphaY);
 	Image(float alphaX, unsigned int width, unsigned int height);
+	void OutputMetadata();
+	void CopyFromImage(const Image &);
+	void CopyData(unsigned char *fromData, unsigned char *toData, uint32 size);
+
+	enum Color
+	{
+		Red = 0,
+		Green = 1,
+		Blue = 2
+	};
+	void SetViewToSingleColor(Color color);
 
 	// Transformation
 	Image *ScaleImage(float scale, bool useBiLinear);
@@ -73,6 +94,30 @@ public:
 	};
 	void FilterInFrequency(Filter Filter, FilterType type, FilterStage stage, double radius, uint16 n = 0);
 
+	//Image Processing
+	enum FISHStage
+	{
+	};
+	enum CircuitBoardStage
+	{
+	};
+	enum BottlesStage
+	{
+		LiquidSegmentation = 0
+	};
+	const int HIGHLIGHT_INTENSITY = 100;
+	void FISHSignalCounts(FISHStage stage);
+	const int CIRCUIT_BACKGROUND_INTENSITY = 128;
+	const int WIRE_INTENSITY = 64;
+	const int MAIN_CENTER = 176;
+	void CircuitBoard(CircuitBoardStage stage);
+	const int BOTTLENECK_START = 64;
+	const int BOTTLENECK_END = 89;
+	const int LIQUID_ERROR_BOTTOM = 5;
+	const int LIQUID_ERROR_TOP = 20;
+	const int SOLDERING_ISLAND_DELTA = 100;
+	void Bottles(BottlesStage stage);
+
 	virtual ~Image();
 	// File related
 	bool openFile(std::string filename);
@@ -101,6 +146,10 @@ private:
 	std::vector<unsigned int> _histogram = std::vector<unsigned int>(256, 0);
 
 	unsigned char *_data{nullptr};
+	unsigned char *_redData{nullptr};
+	unsigned char *_greenData{nullptr};
+	unsigned char *_blueData{nullptr};
+	int *_components{nullptr};
 	float *_fData{nullptr};
 	fftw_complex *_complexData{nullptr};
 
@@ -145,6 +194,34 @@ private:
 	float IdealFilter(FilterType type, float D0, float D);
 	float ButterworthFilter(FilterType type, float D0, float D, int n);
 	float GaussianFilter(FilterType type, float D0, float D);
+	void MedianFilter(uint32 x, uint32 y, int filterWidth);
+	void RemoveSaltandPepper();
+
+	//Mathematical Morphology
+	const int MAX_INTENSITY = 255;
+	const int MIN_INTENSITY = 0;
+	void Erosion(unsigned char *data, int XWidth, int YWidth);
+	void Dilation(unsigned char *data, int width);
+	//Segmentation
+	void Treshold(unsigned char *data, int treshold);
+	void TresholdReverse(unsigned char *data, int treshold);
+	void CCL(unsigned char *data, int *labels, std::vector<Component> &components);
+	//void LabelComponent(unsigned char *data, int labelNo, uint32 x, uint32 y);
+	void LabelComponent(unsigned char *data, int *labels, Component &component, uint32 x, uint32 y);
+	void FillHoles(unsigned char *data, int *labels, int componentToSkip);
+	bool ComponentInsideComponent(Component &outsideComponent, Component &insideComponent);
+	bool ComponentsIntersect(Component &mainComponent, Component &sideComponent);
+	bool ComponentCenteredInsideComponent(Component &mainComponent, Component &insideComponent, int deltaError);
+	void GetComponentBoundaries(Component &component, int &minX, int &maxX, int &minY, int &maxY);
+	void RemoveSmallComponents(std::vector<Component> &components, unsigned char *data, int size);
+
+	void RemoveWires(unsigned char *data);
+	void FillHoles(unsigned char *data, std::vector<Component> &components, std::vector<Component> &holes);
+	void FilterComponents(unsigned char *data, std::vector<Component> &components, int fitlerIntensity);
+	bool SolderingIslandCorrect(Component &component);
+	bool LiquidFilled();
+
+	void SetDataToView(unsigned char *data, int channels);
 };
 
 class Interval

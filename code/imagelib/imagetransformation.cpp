@@ -9,14 +9,14 @@ using std::max;
 using std::min;
 
 
-void printRegion(Image::BBox region)
+void printRegion(BBox region)
 {
     cout << "Region: " << endl
          << "minX:" << region.min_x << " maxX:" << region.max_x << endl
          << "minY:" << region.min_y << " maxY:" << region.max_y << endl;
 }
 
-Matrix3f getIndexToWorldMatrix(float height, Image::BBox region, float pixelUnit)
+Matrix3f getIndexToWorldMatrix(float height, BBox region, float pixelUnit)
 {
     Matrix3f offset;
     offset.setIdentity();
